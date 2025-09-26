@@ -51,6 +51,18 @@ SELECT
 FROM Compra cp
 JOIN Proveedor pr ON cp.id_proveedor = pr.id_proveedor;
 
+CREATE VIEW ventas_por_categoria AS
+SELECT 
+    c.nombre_categoria AS categoria,
+    SUM(dv.cantidad) AS total_productos_vendidos,
+    SUM(dv.cantidad * dv.precio_unitario) AS total_ventas
+FROM Detalle_Venta dv
+JOIN Producto p ON dv.id_producto = p.id_producto
+JOIN Categoria c ON p.id_categoria = c.id_categoria
+JOIN Venta v ON dv.id_venta = v.id_venta
+GROUP BY c.nombre_categoria;
+
+
 -- 2) FUNCIONES
 
 DELIMITER $$
@@ -95,7 +107,7 @@ BEGIN
   DECLARE item_cantidad INT;
   DECLARE item_precio DECIMAL(10,2);
 
-  -- insertar venta con total 0 (se actualizar· luego)
+  -- insertar venta con total 0 (se actualizar√° luego)
   INSERT INTO Venta (fecha_venta, id_cliente, total, estado)
   VALUES (p_fecha, p_id_cliente, 0.00, 'pendiente');
   SET v_id_venta = LAST_INSERT_ID();
@@ -210,3 +222,4 @@ BEGIN
   WHERE id_compra = NEW.id_compra;
 END$$
 DELIMITER ;
+
